@@ -15,6 +15,7 @@ from flask_wtf import Form
 from flask_migrate import Migrate
 
 from forms import *
+from sqlalchemy import func
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -41,13 +42,27 @@ class Venue(db.Model):
     __tablename__ = 'Venue'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
+    name = db.Column(db.String())
     city = db.Column(db.String(120))
     state = db.Column(db.String(120))
     address = db.Column(db.String(120))
     phone = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
+    num_upcoming_shows = db.Column(db.Integer())
+    genres = db.Column(db.ARRAY(db.String()))
+    website = db.Column(db.String(500))
+    seeking_talent = db.Column(db.Boolean()) #double check this later
+    seeking_description = db.Column(db.String(500))
+    past_shows = db.Column(db.Integer())
+    upcoming_shows = db.Column(db.ARRAY(db.String()))
+    past_shows_count = db.Column(db.Integer())
+    upcoming_shows_count = db.Column(db.Integer())
+
+
+
+
+
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 db.create_all()
@@ -87,6 +102,8 @@ app.jinja_env.filters['datetime'] = format_datetime
 # Controllers.
 #----------------------------------------------------------------------------#
 
+
+
 @app.route('/')
 def index():
   return render_template('pages/home.html')
@@ -99,43 +116,85 @@ def index():
 def venues():
   # TODO: replace with real venues data.
   #       num_shows should be aggregated based on number of upcoming shows per venue.
-  data=[{
-    "city": "San Francisco",
-    "state": "CA",
-    "venues": [{
-      "id": 1,
-      "name": "The Musical Hop",
-      "num_upcoming_shows": 0,
-    }, {
-      "id": 3,
-      "name": "Park Square Live Music & Coffee",
-      "num_upcoming_shows": 1,
-    }]
-  }, {
-    "city": "New York",
-    "state": "NY",
-    "venues": [{
-      "id": 2,
-      "name": "The Dueling Pianos Bar",
-      "num_upcoming_shows": 0,
-    }]
-  }]
-  return render_template('pages/venues.html', areas=data);
+
+
+    data = Venue.query.all()
+#    data=[{
+#       "city": "San Francisco",
+#       "state": "CA",
+#       "venues": [{
+#         "id": 1,
+#         "name": "The Musical Hop",
+#         "num_upcoming_shows": 0,
+#       }, {
+#         "id": 3,
+#         "name": "Park Square Live Music & Coffee",
+#         "num_upcoming_shows": 1,
+#       }]
+#     }, {
+#       "city": "New York",
+#       "state": "NY",
+#       "venues": [{
+#         "id": 2,
+#         "name": "The Dueling Pianos Bar",
+#         "num_upcoming_shows": 0,
+#       }]
+#     }]
+##need to figure out how to add the data to the database
+##i would loop through all venues and populate the data based on venue id, keep city, state same, yes this works !
+#    venue_entries = []
+#    for d in data:
+#        for v in d['venues']:
+#            new_entry = Venue(city=d['city'], state=d['state'],id=v['id'], name=v['name'],
+#                              num_upcoming_shows=v['num_upcoming_shows'])
+#
+#            venue_entries.append(new_entry)
+#    db.session.add_all(venue_entries)
+#    db.session.commit()
+#
+
+    return render_template('pages/venues.html', areas=data)
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
   # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
   # seach for Hop should return "The Musical Hop".
   # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
-  response={
-    "count": 1,
-    "data": [{
-      "id": 2,
-      "name": "The Dueling Pianos Bar",
-      "num_upcoming_shows": 0,
-    }]
-  }
-  return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
+ # response={
+ #   "count": 1,
+ #   "data": [{
+ #     "id": 2,
+ #     "name": "The Dueling Pianos Bar",
+ #     "num_upcoming_shows": 0,
+ #   }]
+ # }
+
+    search = request.form.get('search_term').lower()
+    print(type(search))
+    print(search)
+
+
+
+  #response = Venue.query.filter(Venue.name.contains(search)).all()
+    #test = db.session.query(Venue).all()
+    #test = Venue.query.all()
+    #for t in test:
+    #    print(t)
+    #    print(t.name)
+    #response = db.session.query(Venue).filter(Venue.name.like('%'+search+'%')).all()
+    #response = db.session.query(Venue).filter(Venue.name.contains('%'+"search"+'%')).all() #my error, the search is a variable not a ""
+
+
+    response = Venue.query.filter(Venue.name.contains('%' + search + '%')).all()
+    for y in response:
+        print(y)
+        print(y.name)
+    response2 = Venue.query.filter(Venue.name.ilike('%{}%'.format(search))).all()
+    for b in response2:
+        print(b.name)
+
+ #response = Venue.session.query('name')
+    return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
 
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
@@ -218,8 +277,26 @@ def show_venue(venue_id):
     "past_shows_count": 1,
     "upcoming_shows_count": 1,
   }
+
+#need to add all the data into your database
+  #venue_entries = []
+  #    for d in data:
+  #        for v in d['venues']:
+  #            new_entry = Venue(city=d['city'], state=d['state'],id=v['id'], name=v['name'],
+  #                              num_upcoming_shows=v['num_upcoming_shows'])
+  #
+  #            venue_entries.append(new_entry)
+  #    db.session.add_all(venue_entries)
+  #    db.session.commit()
+
   data = list(filter(lambda d: d['id'] == venue_id, [data1, data2, data3]))[0]
-  return render_template('pages/show_venue.html', venue=data)
+
+
+  all_data = Venue.query.all()
+  #need help adding data1,2,3 to my venue table
+
+
+  return render_template('pages/show_venue.html', venue=all_data)
 
 #  Create Venue
 #  ----------------------------------------------------------------

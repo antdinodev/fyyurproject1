@@ -10,10 +10,21 @@
 				<i class="fas fa-music"></i>
 				<div class="item">
 					<h5>{{ venue.name }}</h5>
+					<h5>Notes - this doesnt work anymore because i changed the database, the venue data is no longer nested inside the venue list, so we dont need a for loop </h5>
+
 				</div>
 			</a>
 		</li>
 		{% endfor %}
+			<li>
+			<a href="/venues/{{ area.id }}">
+				<i class="fas fa-music"></i>
+				<div class="item">
+					<h5>{{ area.name }}</h5>
+
+				</div>
+			</a>
+		</li>
 	</ul>
 {% endfor %}
 {% endblock %}

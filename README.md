@@ -5,3 +5,5 @@
 Please see error:
     raise exc.NoSuchTableError(table.name)
 sqlalchemy.exc.NoSuchTableError: Venue
+
+-fixed
