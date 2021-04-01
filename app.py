@@ -293,6 +293,37 @@ def show_venue(venue_id):
 
 
   all_data = Venue.query.all()
+
+  venue = Venue.query.get(venue_id)
+
+  upcoming_show = db.session.query(Venue).join(Artist).filter(Venue.venue_id == venue_id).all()
+  past_show = db.session.query(Venue).join(Artist).filter(Venue.venue_id == venue_id).all()
+
+  data_shows = []
+  for show in past_show:
+    data_shows.append({
+      # here you data as start_time
+      'start_time': show.start_time.strftime('%Y-%m-%d %H:%M:%S'),
+    })
+  past_shows_count = len(data_shows)
+
+  for show in upcoming_show:
+    data_shows.append({
+      # here you data as start_time
+      'start_time': show.start_time.strftime('%Y-%m-%d %H:%M:%S'),
+    })
+
+  upcoming_shows_count = len(data_shows)
+
+  data4 =
+  {
+    # here field that you want to show
+    'past_shows"': past_shows,
+    'upcoming_shows': upcoming_shows,
+    'past_shows_count': past_shows_count,
+    'upcoming_shows_count': upcoming_shows_count,
+  }
+
   #need help adding data1,2,3 to my venue table
 
 
