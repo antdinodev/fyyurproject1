@@ -315,14 +315,14 @@ def show_venue(venue_id):
 
   upcoming_shows_count = len(data_shows)
 
-  data4 =
-  {
-    # here field that you want to show
-    'past_shows"': past_shows,
-    'upcoming_shows': upcoming_shows,
-    'past_shows_count': past_shows_count,
-    'upcoming_shows_count': upcoming_shows_count,
-  }
+# data4 =
+# {
+#   # here field that you want to show
+#   'past_shows"': past_shows,
+#   'upcoming_shows': upcoming_shows,
+#   'past_shows_count': past_shows_count,
+#   'upcoming_shows_count': upcoming_shows_count,
+# }
 
   #need help adding data1,2,3 to my venue table
 
